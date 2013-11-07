@@ -2,6 +2,7 @@ package execution
 
 import (
 	"fmt"
+	"github.com/smartystreets/goconvey/gotest"
 	"github.com/smartystreets/goconvey/reporting"
 	"strings"
 )
@@ -70,8 +71,9 @@ func (parent *scope) exit() {
 	parent.reporter.Exit()
 }
 
-// func newScope(title string, action *Action, reporter reporting.Reporter) *scope {
 func newScope(entry *Registration, reporter reporting.Reporter) *scope {
+	fmt.Println("SCOPE:", entry.Situation)
+	fmt.Println(gotest.ResolveExternalCaller())
 	self := &scope{}
 	self.reporter = reporter
 	self.name = entry.Action.name

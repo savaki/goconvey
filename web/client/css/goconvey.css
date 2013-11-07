@@ -57,6 +57,7 @@ code {
 	line-height: 1.5em;
 	font-size: 10px;
 	white-space: pre-wrap;
+	word-break: break-all;
 }
 
 table {

@@ -66,6 +66,17 @@ func Reset(action func()) {
 // See the examples package for use cases and the assertions package for
 // documentation on specific assertion methods.
 func So(actual interface{}, assert assertion, expected ...interface{}) {
+	/*
+		TODO:
+		0. Get discover method fully under unit tests
+		1. Need to resolve the external caller in the constructor of the scope struct
+		2. Need a new reporter that will first save a reference to the scope when it
+			is entered, and then when a report is received, it will compare the callers
+			coming from both the report and the saved reference to the scope, and
+			decide which one is appropriate.
+			This reporter must be registered along with the go test reporter before any
+			other console reporters are registered.
+	*/
 	if result := assert(actual, expected...); result == assertionSuccess {
 		reporter.Report(reporting.NewSuccessReport())
 	} else {

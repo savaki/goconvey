@@ -20,12 +20,13 @@ func ResolveExternalCaller() (file string, line int, name string) {
 
 	for x := 0; x < callers; x++ {
 		caller_id, file, line, _ = runtime.Caller(x)
+		fmt.Println(file, line)
 		if strings.HasSuffix(file, "test.go") {
 			name = runtime.FuncForPC(caller_id).Name()
 			return
 		}
 	}
-	file, line, name = "<unkown file>", -1, "<unknown name"
+	file, line, name = "<unknown file>", -1, "<unknown name>"
 	return // panic?
 }
 

@@ -136,8 +136,7 @@ $(function()
 	$('body').on('click', '.toggle-package-shortcuts', function()
 	{
 		$(this).next('a').next('.testfunc-list').toggle(65);
-	});
-	// Package stories
+	});// Package stories
 	$('body').on('click', '.toggle-package-stories', function()
 	{
 		$(this).closest('tr').siblings().toggle();

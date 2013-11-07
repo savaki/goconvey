@@ -1,6 +1,7 @@
 package convey
 
 import (
+	"fmt"
 	"github.com/smartystreets/goconvey/execution"
 	"github.com/smartystreets/goconvey/reporting"
 	"path"
@@ -29,6 +30,35 @@ func TestNestedScopeReported(t *testing.T) {
 	})
 
 	expectEqual(t, "Begin|A|B|Success|Exit|Exit|End", myReporter.wholeStory())
+}
+
+func TestTopLevelInlineAssertionReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+	Convey("A", test, So, 1, ShouldEqual, 1)
+	expectEqual(t, "Begin|A|Success|Exit|End", myReporter.wholeStory())
+}
+
+func TestNestedInlineAssertionReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+	Convey("A", test, func() {
+		Convey("B", So, 1, ShouldEqual, 1)
+	})
+	expectEqual(t, "Begin|A|B|Success|Exit|Exit|End", myReporter.wholeStory())
+}
+
+func TestShortInlineAssertionReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+	Convey("A", test, func() {
+		Convey("B", So, 1, ShouldNotBeNil)
+	})
+	expectEqual(t, "Begin|A|B|Success|Exit|Exit|End", myReporter.wholeStory())
+}
+
+func TestLongInlineAssertionReported(t *testing.T) {
+	myReporter, test := setupFakeReporter()
+	Convey("A", test, So, 1, ShouldBeBetween, 0, 2)
+	expectEqual(t, "Begin|A|Success|Exit|End", myReporter.wholeStory())
+	// TODO: Test line numbers for inline assertions
 }
 
 func TestFailureReported(t *testing.T) {
@@ -179,6 +209,7 @@ func (self *fakeReporter) Enter(scope *reporting.ScopeReport) {
 
 func (self *fakeReporter) Report(report *reporting.AssertionReport) {
 	if report.Error != nil {
+		fmt.Println(report.Error)
 		self.calls = append(self.calls, "Error")
 	} else if report.Failure != "" {
 		self.calls = append(self.calls, "Failure")
