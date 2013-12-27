@@ -1,21 +1,11 @@
 package convey
 
-import (
-	"fmt"
-	"github.com/smartystreets/goconvey/execution"
-	"github.com/smartystreets/goconvey/reporting"
-	"path"
-	"runtime"
-	"strconv"
-	"strings"
-	"testing"
-)
-
+/*
 func TestSingleScopeReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		So(1, ShouldEqual, 1)
+	Convey("A", test, func(c *Context, so Assert) {
+		so(1, ShouldEqual, 1)
 	})
 
 	expectEqual(t, "Begin|A|Success|Exit|End", myReporter.wholeStory())
@@ -24,9 +14,9 @@ func TestSingleScopeReported(t *testing.T) {
 func TestNestedScopeReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		Convey("B", func() {
-			So(1, ShouldEqual, 1)
+	Convey("A", test, func(c *Context, so Assert) {
+		Convey("B", c, func() {
+			so(1, ShouldEqual, 1)
 		})
 	})
 
@@ -36,8 +26,8 @@ func TestNestedScopeReported(t *testing.T) {
 func TestFailureReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		So(1, ShouldBeNil)
+	Convey("A", test, func(c *Context, so Assert) {
+		so(1, ShouldBeNil)
 	})
 
 	expectEqual(t, "Begin|A|Failure|Exit|End", myReporter.wholeStory())
@@ -46,8 +36,8 @@ func TestFailureReported(t *testing.T) {
 func TestComparisonFailureDeserializedAndReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		So("hi", ShouldEqual, "bye")
+	Convey("A", test, func(c *Context, so Assert) {
+		so("hi", ShouldEqual, "bye")
 	})
 
 	expectEqual(t, "Begin|A|Failure(bye/hi)|Exit|End", myReporter.wholeStory())
@@ -56,9 +46,9 @@ func TestComparisonFailureDeserializedAndReported(t *testing.T) {
 func TestNestedFailureReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		Convey("B", func() {
-			So(2, ShouldBeNil)
+	Convey("A", test, func(c *Context, so Assert) {
+		Convey("B", c, func() {
+			so(2, ShouldBeNil)
 		})
 	})
 
@@ -68,9 +58,9 @@ func TestNestedFailureReported(t *testing.T) {
 func TestSuccessAndFailureReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		So(1, ShouldBeNil)
-		So(nil, ShouldBeNil)
+	Convey("A", test, func(c *Context, so Assert) {
+		so(1, ShouldBeNil)
+		so(nil, ShouldBeNil)
 	})
 
 	expectEqual(t, "Begin|A|Failure|Success|Exit|End", myReporter.wholeStory())
@@ -79,7 +69,7 @@ func TestSuccessAndFailureReported(t *testing.T) {
 func TestIncompleteActionReportedAsSkipped(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
+	Convey("A", test, func(c *Context, so Assert) {
 		Convey("B", nil)
 	})
 
@@ -89,9 +79,9 @@ func TestIncompleteActionReportedAsSkipped(t *testing.T) {
 func TestSkippedConveyReportedAsSkipped(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		SkipConvey("B", func() {
-			So(1, ShouldEqual, 1)
+	Convey("A", test, func(c *Context, so Assert) {
+		SkipConvey("B", c, func() {
+			so(1, ShouldEqual, 1)
 		})
 	})
 
@@ -101,19 +91,19 @@ func TestSkippedConveyReportedAsSkipped(t *testing.T) {
 func TestMultipleSkipsAreReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		Convey("0", func() {
-			So(nil, ShouldBeNil)
+	Convey("A", test, func(c *Context, so Assert) {
+		Convey("0", c, func() {
+			so(nil, ShouldBeNil)
 		})
 
-		SkipConvey("1", func() {})
-		SkipConvey("2", func() {})
+		SkipConvey("1", c, func() {})
+		SkipConvey("2", c, func() {})
 
 		Convey("3", nil)
 		Convey("4", nil)
 
-		Convey("5", func() {
-			So(nil, ShouldBeNil)
+		Convey("5", c, func() {
+			so(nil, ShouldBeNil)
 		})
 	})
 
@@ -132,8 +122,8 @@ func TestMultipleSkipsAreReported(t *testing.T) {
 func TestSkippedAssertionIsNotReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		SkipSo(1, ShouldEqual, 1)
+	Convey("A", test, func(c *Context, so Assert) {
+		c.Skipso(1, ShouldEqual, 1)
 	})
 
 	expectEqual(t, "Begin|A|Skipped|Exit|End", myReporter.wholeStory())
@@ -142,10 +132,10 @@ func TestSkippedAssertionIsNotReported(t *testing.T) {
 func TestMultipleSkippedAssertionsAreNotReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
-		SkipSo(1, ShouldEqual, 1)
-		So(1, ShouldEqual, 1)
-		SkipSo(1, ShouldEqual, 1)
+	Convey("A", test, func(c *Context, so Assert) {
+		c.Skipso(1, ShouldEqual, 1)
+		so(1, ShouldEqual, 1)
+		c.Skipso(1, ShouldEqual, 1)
 	})
 
 	expectEqual(t, "Begin|A|Skipped|Success|Skipped|Exit|End", myReporter.wholeStory())
@@ -154,7 +144,7 @@ func TestMultipleSkippedAssertionsAreNotReported(t *testing.T) {
 func TestErrorByManualPanicReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
+	Convey("A", test, func(c *Context, so Assert) {
 		panic("Gopher alert!")
 	})
 
@@ -164,10 +154,10 @@ func TestErrorByManualPanicReported(t *testing.T) {
 func TestIterativeConveysReported(t *testing.T) {
 	myReporter, test := setupFakeReporter()
 
-	Convey("A", test, func() {
+	Convey("A", test, func(c *Context, so Assert) {
 		for x := 0; x < 3; x++ {
-			Convey(strconv.Itoa(x), func() {
-				So(x, ShouldEqual, x)
+			Convey(strconv.Itoa(x), c, func() {
+				so(x, ShouldEqual, x)
 			})
 		}
 	})
@@ -231,3 +221,4 @@ func (self *fakeReporter) EndStory() {
 func (self *fakeReporter) wholeStory() string {
 	return strings.Join(self.calls, "|")
 }
+*/

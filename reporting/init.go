@@ -2,9 +2,10 @@ package reporting
 
 import (
 	"fmt"
-	"github.com/smartystreets/goconvey/printing"
 	"os"
 	"strings"
+
+	"github.com/smartystreets/goconvey/printing"
 )
 
 func init() {
@@ -28,16 +29,14 @@ func BuildDotReporter() Reporter {
 	return NewReporters(
 		NewGoTestReporter(),
 		NewDotReporter(out),
-		NewProblemReporter(out),
-		NewStatisticsReporter(out))
+		NewProblemReporter(out))
 }
 func BuildStoryReporter() Reporter {
 	out := printing.NewPrinter(printing.NewConsole())
 	return NewReporters(
 		NewGoTestReporter(),
 		NewStoryReporter(out),
-		NewProblemReporter(out),
-		NewStatisticsReporter(out))
+		NewProblemReporter(out))
 }
 
 var (

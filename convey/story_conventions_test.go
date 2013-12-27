@@ -1,12 +1,6 @@
 package convey
 
-import (
-	"fmt"
-	"github.com/smartystreets/goconvey/execution"
-	"strings"
-	"testing"
-)
-
+/*
 func TestMissingTopLevelGoTestReferenceCausesPanic(t *testing.T) {
 	runner = execution.NewRunner()
 
@@ -15,7 +9,7 @@ func TestMissingTopLevelGoTestReferenceCausesPanic(t *testing.T) {
 	defer expectEqual(t, false, output["good"])
 	defer requireGoTestReference(t)
 
-	Convey("Hi", func() {
+	Convey("Hi", c, c, func() {
 		output["bad"] = true // this shouldn't happen
 	})
 }
@@ -40,11 +34,11 @@ func TestMissingTopLevelGoTestReferenceAfterGoodExample(t *testing.T) {
 	}()
 	defer requireGoTestReference(t)
 
-	Convey("Good example", t, func() {
+	Convey("Good example", t, func(c *Context, so Assert) {
 		output["good"] = true
 	})
 
-	Convey("Bad example", func() {
+	Convey("Bad example", c, c, func() {
 		output["bad"] = true // shouldn't happen
 	})
 }
@@ -65,9 +59,10 @@ func TestExtraReferencePanics(t *testing.T) {
 		}
 	}()
 
-	Convey("Good example", t, func() {
-		Convey("Bad example - passing in *testing.T a second time!", t, func() {
+	Convey("Good example", t, func(c *Context, so Assert) {
+		Convey("Bad example - passing in *testing.T a second time!", t, func(c *Context, so Assert) {
 			output["bad"] = true // shouldn't happen
 		})
 	})
 }
+*/
