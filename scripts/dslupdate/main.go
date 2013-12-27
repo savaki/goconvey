@@ -20,6 +20,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -28,19 +29,16 @@ func main() {
 	flag.Parse()
 	log.Println("Start at:", root)
 
-	absRoot, err := filepath.Abs(root)
-	if err != nil {
-		panic(err)
-	}
+	_, this, _, _ := runtime.Caller(0)
+	thisFolder := filepath.Dir(this)
 
-	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		log.Println(path)
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
-		absoluteFolder, err := filepath.Abs(filepath.Dir(path))
-		if absoluteFolder == absRoot {
-			log.Println("Skipping:", absoluteFolder)
+		currentFolder, err := filepath.Abs(filepath.Dir(path))
+		if currentFolder == thisFolder {
+			log.Println("Skipping:", currentFolder)
 			return filepath.SkipDir
 		}
 
@@ -70,7 +68,7 @@ func rewrite(inLines []string) []string {
 	for number, line := range inLines {
 		if strings.HasPrefix(dedent(line), "Convey(\"") && strings.HasSuffix(line, ", t, func() {") {
 			// top-level `Convey`
-			outLines[number] = strings.Replace(line, ", t, func() {", ", t, func(c Context, so Assert) {", 1)
+			outLines[number] = strings.Replace(line, ", t, func() {", ", t, func(c *Context, so Assert) {", 1)
 		} else if strings.HasPrefix(dedent(line), "Convey(\"") {
 			// 'Convey' call
 			outLines[number] = strings.Replace(line, ", func() {", ", c, func() {", 1)

@@ -55,7 +55,7 @@ import (
 func TestSomething(t *testing.T) {
 	var a int
 
-	Convey("Top-level", t, func(c Context, so Assert) {
+	Convey("Top-level", t, func(c *Context, so Assert) {
 		a = 42
 
 		Convey("nested 1", c, func() {
