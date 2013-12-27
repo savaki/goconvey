@@ -20,18 +20,32 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
 func main() {
-	flag.StringVar(&root, "root", ".", "The top-level directory to begin scanning for *_test.go files which will be updated to the latest GoConvey DSL style.")
+	flag.StringVar(&root, "root", ".", rootDescription)
 	flag.Parse()
 	log.Println("Root:", root)
 
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	_, file, _, _ := runtime.Caller(0)
+	log.Println(file)
+	absRoot, err := filepath.Abs(root)
+	if filepath.Dir(file) == absRoot {
+		log.Println("Don't run this script here! It will rewrite the test code for this package. Point it to the folder where your code is.")
+		os.Exit(0)
+	}
+
+	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
+		if path == absRoot {
+			return filepath.SkipDir
+		}
+
+		// TODO: skip this dir (if running from a higher folder)
 
 		if strings.HasSuffix(info.Name(), "_test.go") {
 			log.Println("Rewriting file:", info.Name())
@@ -118,3 +132,5 @@ func writeLines(lines []string, path string) error {
 }
 
 var root string
+
+const rootDescription = "The top-level directory to begin scanning for *_test.go files which will be updated to the latest GoConvey DSL style."
